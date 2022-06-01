@@ -37,13 +37,9 @@ app.get('/api/genres/:genre', (req, res) => {
 });
 
 app.post('/api/genres/', (req, res) => {
-  const schema = Joi.object({
-    genre: Joi.string().min(3).required(),
-  });
-  console.log(req.params);
-  const result = schema.validate(req.body);
-  if (result.error) {
-    return res.status(400).send(result.error.details[0]);
+  const result = joiValidate(req, res);
+  if (result) {
+    return;
   }
 
   const addGenre = {
@@ -63,15 +59,9 @@ app.put('/api/genres/:genre', (req, res) => {
     return res.status(404).send('Genre does not exist!');
   }
 
-  const schema = Joi.object({
-    genre: Joi.string().min(3).required(),
-  });
-  console.log(req.body.genre);
-  const result = schema.validate(req.body);
-  console.log(result);
-  if (result.error) {
-    console.log('ERROR!!!');
-    return res.status(400).send(result.error.details[0]);
+  const result = joiValidate(req, res);
+  if (result) {
+    return;
   }
 
   genreFound.genre = req.body.genre;
@@ -95,3 +85,18 @@ app.delete('/api/genres/:genre', (req, res) => {
 app.listen(port, () => {
   console.log(`Listening to port: ${port}`);
 });
+
+const joiValidate = (req, res) => {
+  const schema = Joi.object({
+    genre: Joi.string().min(3).required(),
+  });
+
+  const result = schema.validate(req.body);
+
+  if (result.error) {
+    res.status(400).send(result.error.details[0]);
+    return true;
+  } else {
+    return false;
+  }
+};
